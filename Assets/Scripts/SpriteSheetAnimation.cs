@@ -21,6 +21,7 @@ public class SpriteSheetAnimation : MonoBehaviour
     private int currentSprite = 0;
 
     private Image imageComponent;
+    private Action OnAnimationEndCallback;
 	#endregion
 
 
@@ -83,6 +84,9 @@ public class SpriteSheetAnimation : MonoBehaviour
             {
                 isEnded = true;
                 isPlayed = false;
+
+                if (OnAnimationEndCallback != null)
+                    OnAnimationEndCallback();
             }
         }
             
@@ -91,6 +95,11 @@ public class SpriteSheetAnimation : MonoBehaviour
 
 
     #region Public Methods
+    public void Init (Action onAnimationEndCallback)
+    {
+        OnAnimationEndCallback = onAnimationEndCallback;
+    }
+
     public void Play ()
     {
         isPlayed = true;
