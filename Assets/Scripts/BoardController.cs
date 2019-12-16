@@ -70,9 +70,9 @@ public class BoardController : MonoBehaviour
         PrintMatrix("InitBoard");
     }
 
-    private void FillCell(int i, int j)
+    private void FillCell(int x, int y)
     {
-        boardMatrix[i, j] = new CellData(itemsPrefabs, board, new Vector2(i, j), OnItemDestroyed);
+        boardMatrix[x, y] = new CellData(itemsPrefabs, board, new Vector2(x, y), OnItemDestroyed);
     }
 
     private void OnItemDestroyed()
@@ -96,16 +96,16 @@ public class BoardController : MonoBehaviour
                 if (boardMatrix[i, j].isEmpty())
                 {
                     int next = EMPTY;
-                    int jOfNext = j;
+                    int yOfNext = j;
 
-                    while (next == EMPTY && jOfNext < Model.COLS-1)
+                    while (next == EMPTY && yOfNext < Model.COLS-1)
                     {
-                        next = boardMatrix[i, ++jOfNext].type;
+                        next = boardMatrix[i, ++yOfNext].type;
                     }
 
                     if (next != EMPTY) 
                     {
-                        DropItem(i, j, jOfNext);
+                        DropItem(i, j, yOfNext);
                     }
                     else //there is no more items in this vertical
                     {
@@ -123,12 +123,12 @@ public class BoardController : MonoBehaviour
         CheckForMatches();
     }
 
-    private void DropItem(int i, int j, int jOfNext)
+    private void DropItem(int x, int y, int yOfNext)
     {
-        boardMatrix[i, j] = boardMatrix[i, jOfNext];
-        boardMatrix[i, j].item.UpdateCoordinates(new Vector2(i, j));
+        boardMatrix[x, y] = boardMatrix[x, yOfNext];
+        boardMatrix[x, y].item.UpdateCoordinates(new Vector2(x, y));
 
-        boardMatrix[i, jOfNext].Empty();
+        boardMatrix[x, yOfNext].Empty();
     }
 
     private void CheckForMatches ()
@@ -141,23 +141,23 @@ public class BoardController : MonoBehaviour
 
                 if (onCheck != EMPTY)
                 {
-                    int countH = CountSameH(i, j, onCheck);
-                    int countV = CountSameV(i, j, onCheck);
+                    int numberOfSameInRow = CountSameInRow(i, j, onCheck);
+                    int numberOfSameInCol = CountSameInColumn(i, j, onCheck);
 
-                    if (countH >= MATCH_MIN)
+                    if (numberOfSameInRow >= MATCH_MIN)
                     {
-                        DestroyMatchH(i, j, countH);
+                        DestroyMatchInRow(i, j, numberOfSameInRow);
                     }
 
-                    if (countV >= MATCH_MIN)
+                    if (numberOfSameInCol >= MATCH_MIN)
                     {
-                        if (countH >= MATCH_MIN)
+                        if (numberOfSameInRow >= MATCH_MIN)
                         {
-                            DestroyMatchV(i, j + 1, countV - 1);
+                            DestroyMatchInColumn(i, j + 1, numberOfSameInCol - 1);
                         }
                         else
                         {
-                            DestroyMatchV(i, j, countV);
+                            DestroyMatchInColumn(i, j, numberOfSameInCol);
                         }
                     }
                 }
@@ -165,53 +165,53 @@ public class BoardController : MonoBehaviour
         }
     }
 
-    private int CountSameH(int i, int j, int onCheck)
+    private int CountSameInRow(int startX, int startY, int onCheck)
     {
-        int countH = 1;
+        int numberOfSameInRow = 1;
 
-        for (int k = i + 1; k < Model.ROWS; k++)
+        for (int k = startX + 1; k < Model.ROWS; k++)
         {
-            if (boardMatrix[k, j].type == onCheck)
-                countH++;
+            if (boardMatrix[k, startY].type == onCheck)
+                numberOfSameInRow++;
             else
                 break;
         }
 
-        return countH;
+        return numberOfSameInRow;
     }
 
-    private int CountSameV(int i, int j, int onCheck)
+    private int CountSameInColumn(int startX, int startY, int onCheck)
     {
-        int countV = 1;
+        int numberOfSameInCol = 1;
 
-        for (int k = j + 1; k < Model.COLS; k++)
+        for (int k = startY + 1; k < Model.COLS; k++)
         {
-            if (boardMatrix[i, k].type == onCheck)
-                countV++;
+            if (boardMatrix[startX, k].type == onCheck)
+                numberOfSameInCol++;
             else
                 break;
         }
 
-        return countV;
+        return numberOfSameInCol;
     }
 
-    private void DestroyMatchH(int i, int j, int countH)
+    private void DestroyMatchInRow(int startX, int startY, int numberOfSameInRow)
     {
-        for (int n = 0; n < countH; n++)
+        for (int n = 0; n < numberOfSameInRow; n++)
         {
             toDestroy++;
 
-            boardMatrix[i + n, j].Destroy();
+            boardMatrix[startX + n, startY].Destroy();
         }
     }
 
-    private void DestroyMatchV(int i, int j, int countV)
+    private void DestroyMatchInColumn(int startX, int startY, int numberOfSameInCol)
     {
-        for (int n = 0; n < countV; n++)
+        for (int n = 0; n < numberOfSameInCol; n++)
         {
             toDestroy++;
 
-            boardMatrix[i, j + n].Destroy();
+            boardMatrix[startX, startY + n].Destroy();
         }
     }
     
