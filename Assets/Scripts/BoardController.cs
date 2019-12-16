@@ -10,17 +10,11 @@ public class BoardController : MonoBehaviour
 {
     #region Constants
     private const int MATCH_MIN = 3;
-    private const int EMPTY = 0;
-    private const int GAP = 100;
+    private const int EMPTY = 0;    
     #endregion
 
 
     #region Private Fields
-    [SerializeField] private int width;
-    [SerializeField] private int height;
-    [SerializeField] private float gap;
-
-	private int cellSize;
 	private int toDestroy;
 	private int destroyed;
 
@@ -38,10 +32,6 @@ public class BoardController : MonoBehaviour
     #region Unity Methods
     void Awake()
     {
-        int cellWidth = (Screen.width - GAP)/ width;
-        int cellHeight = (Screen.height - GAP)/ height;
-        cellSize = Math.Min(cellWidth, cellWidth);
-        gap = GAP * 1.5f;
 
         Init();
     }
@@ -68,12 +58,12 @@ public class BoardController : MonoBehaviour
 
     private void InitBoard()
     {
-        boardMatrix = new int[width, height];
-        boardMatrixItems = new GameObject[width, height];
+        boardMatrix = new int[Model.ROWS, Model.COLS];
+        boardMatrixItems = new GameObject[Model.ROWS, Model.COLS];
 
-        for (int i = 0; i < height; i++)
+        for (int i = 0; i < Model.COLS; i++)
         {
-            for (int j = 0; j < width; j++)
+            for (int j = 0; j < Model.ROWS; j++)
             {
                 FillCell(i, j);
             }
@@ -87,18 +77,10 @@ public class BoardController : MonoBehaviour
         int itemID = GetNewItem(items.Length);
 
         GameObject item = Instantiate(items[itemID - 1], board);
-        InitItem(i, j, item);
+        item.GetComponent<Item>().Init(i, j, OnItemDestroyed);
 
         boardMatrix[i, j] = itemID;
         boardMatrixItems[i, j] = item;
-    }
-
-    private void InitItem(int i, int j, GameObject item)
-    {
-        item.name = "[" + i + "," + j + "]";
-        item.transform.position = new Vector2(i * cellSize + gap, j * cellSize + gap);
-        item.GetComponent<RectTransform>().sizeDelta = new Vector2(cellSize * 0.9f, cellSize * 0.9f);
-        item.GetComponent<Item>().Init(OnItemDestroyed);
     }
 
     private static int GetNewItem(int itemsNumber)
@@ -120,16 +102,16 @@ public class BoardController : MonoBehaviour
 
     private void FillEmptyCells()
     {
-        for (int i = 0; i < height; i++)
+        for (int i = 0; i < Model.COLS; i++)
         {
-            for (int j = 0; j < width; j++)
+            for (int j = 0; j < Model.ROWS; j++)
             {
                 if (boardMatrix[i, j] == EMPTY)
                 {
                     int next = EMPTY;
                     int jOfNext = j;
 
-                    while (next == EMPTY && jOfNext < height-1)
+                    while (next == EMPTY && jOfNext < Model.COLS-1)
                     {
                         next = boardMatrix[i, ++jOfNext];
                     }
@@ -140,7 +122,7 @@ public class BoardController : MonoBehaviour
                     }
                     else //there is no more items in this vertical
                     {
-                        for (int k = j; k < height; k++)
+                        for (int k = j; k < Model.COLS; k++)
                         {
                             FillCell(i, k);
                         }
@@ -159,10 +141,8 @@ public class BoardController : MonoBehaviour
         boardMatrix[i, j] = boardMatrix[i, jOfNext];
 
         GameObject item = boardMatrixItems[i, jOfNext];
-        boardMatrixItems[i, j] = item;
-
-        item.name = "[" + i + "," + j + "]";
-        item.transform.position = new Vector2(i * cellSize + gap, j * cellSize + gap);
+        boardMatrixItems[i, j] = item;        
+        item.GetComponent<Item>().UpdateCoordinates(i, j);
 
         boardMatrix[i, jOfNext] = EMPTY;
         boardMatrixItems[i, jOfNext] = null;
@@ -170,9 +150,9 @@ public class BoardController : MonoBehaviour
 
     private void CheckForMatches ()
     {
-        for (int i = 0; i < width; i++)
+        for (int i = 0; i < Model.ROWS; i++)
         {
-            for (int j = 0; j < height; j++)
+            for (int j = 0; j < Model.COLS; j++)
             {
                 int onCheck = boardMatrix[i, j];
 
@@ -206,7 +186,7 @@ public class BoardController : MonoBehaviour
     {
         int countH = 1;
 
-        for (int k = i + 1; k < width; k++)
+        for (int k = i + 1; k < Model.ROWS; k++)
         {
             if (boardMatrix[k, j] == onCheck)
                 countH++;
@@ -221,7 +201,7 @@ public class BoardController : MonoBehaviour
     {
         int countV = 1;
 
-        for (int k = j + 1; k < height; k++)
+        for (int k = j + 1; k < Model.COLS; k++)
         {
             if (boardMatrix[i, k] == onCheck)
                 countV++;
@@ -261,9 +241,9 @@ public class BoardController : MonoBehaviour
     {
         string matrixAsString = methodName + "\n";
 
-        for (int i = 0; i < width; i++)
+        for (int i = 0; i < Model.ROWS; i++)
         {
-            for (int j = 0; j < height; j++)
+            for (int j = 0; j < Model.COLS; j++)
             {
                 matrixAsString += boardMatrix[i, j] + ", ";
             }
