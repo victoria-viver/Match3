@@ -336,11 +336,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8067a26fad9e84b498c14eb7ac8e7e5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 7
-  height: 7
-  gap: 0
   board: {fileID: 791182125}
-  items:
+  itemsPrefabs:
   - {fileID: 3537188188107489394, guid: c18f0da6e071ad14086ddfba0a4443aa, type: 3}
   - {fileID: 4871587465057312952, guid: 731cd77d1e3646240a0fb01c71cdbaa7, type: 3}
   - {fileID: 8450105834751376033, guid: f457f029652989f4882d983cf9bdf76e, type: 3}

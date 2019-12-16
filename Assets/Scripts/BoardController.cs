@@ -18,14 +18,13 @@ public class BoardController : MonoBehaviour
 	private int toDestroy;
 	private int destroyed;
 
-    private int[,] boardMatrix;
-    private Item[,] boardMatrixItems;
+    private CellData[,] boardMatrix;
 	#endregion
 
 
     #region Links
     [SerializeField] private Transform board;
-    [SerializeField] private GameObject[] items;
+    [SerializeField] private GameObject[] itemsPrefabs;
     #endregion
 
 
@@ -58,8 +57,7 @@ public class BoardController : MonoBehaviour
 
     private void InitBoard()
     {
-        boardMatrix = new int[Model.ROWS, Model.COLS];
-        boardMatrixItems = new Item[Model.ROWS, Model.COLS];
+        boardMatrix = new CellData[Model.ROWS, Model.COLS];
 
         for (int i = 0; i < Model.COLS; i++)
         {
@@ -74,19 +72,8 @@ public class BoardController : MonoBehaviour
 
     private void FillCell(int i, int j)
     {
-        int itemID = GetNewItem(items.Length);
-
-        Item item = Instantiate(items[itemID - 1], board).GetComponent<Item>();
-        item.Init(i, j, OnItemDestroyed);
-
-        boardMatrix[i, j] = itemID;
-        boardMatrixItems[i, j] = item;
+        boardMatrix[i, j] = new CellData(itemsPrefabs, board, new Vector2(i, j), OnItemDestroyed);
     }
-
-    private static int GetNewItem(int itemsNumber)
-    {
-        return UnityEngine.Random.Range(0, itemsNumber) + 1;
-    }    
 
     private void OnItemDestroyed()
     {
@@ -106,14 +93,14 @@ public class BoardController : MonoBehaviour
         {
             for (int j = 0; j < Model.ROWS; j++)
             {
-                if (boardMatrix[i, j] == EMPTY)
+                if (boardMatrix[i, j].isEmpty())
                 {
                     int next = EMPTY;
                     int jOfNext = j;
 
                     while (next == EMPTY && jOfNext < Model.COLS-1)
                     {
-                        next = boardMatrix[i, ++jOfNext];
+                        next = boardMatrix[i, ++jOfNext].type;
                     }
 
                     if (next != EMPTY) 
@@ -139,13 +126,9 @@ public class BoardController : MonoBehaviour
     private void DropItem(int i, int j, int jOfNext)
     {
         boardMatrix[i, j] = boardMatrix[i, jOfNext];
+        boardMatrix[i, j].item.UpdateCoordinates(new Vector2(i, j));
 
-        Item item = boardMatrixItems[i, jOfNext];
-        boardMatrixItems[i, j] = item;        
-        item.UpdateCoordinates(i, j);
-
-        boardMatrix[i, jOfNext] = EMPTY;
-        boardMatrixItems[i, jOfNext] = null;
+        boardMatrix[i, jOfNext].Empty();
     }
 
     private void CheckForMatches ()
@@ -154,7 +137,7 @@ public class BoardController : MonoBehaviour
         {
             for (int j = 0; j < Model.COLS; j++)
             {
-                int onCheck = boardMatrix[i, j];
+                int onCheck = boardMatrix[i, j].type;
 
                 if (onCheck != EMPTY)
                 {
@@ -188,7 +171,7 @@ public class BoardController : MonoBehaviour
 
         for (int k = i + 1; k < Model.ROWS; k++)
         {
-            if (boardMatrix[k, j] == onCheck)
+            if (boardMatrix[k, j].type == onCheck)
                 countH++;
             else
                 break;
@@ -203,7 +186,7 @@ public class BoardController : MonoBehaviour
 
         for (int k = j + 1; k < Model.COLS; k++)
         {
-            if (boardMatrix[i, k] == onCheck)
+            if (boardMatrix[i, k].type == onCheck)
                 countV++;
             else
                 break;
@@ -217,10 +200,8 @@ public class BoardController : MonoBehaviour
         for (int n = 0; n < countH; n++)
         {
             toDestroy++;
-            boardMatrixItems[i + n, j].Pop();
 
-            boardMatrix[i + n, j] = EMPTY;
-            boardMatrixItems[i + n, j] = null;
+            boardMatrix[i + n, j].Destroy();
         }
     }
 
@@ -229,13 +210,11 @@ public class BoardController : MonoBehaviour
         for (int n = 0; n < countV; n++)
         {
             toDestroy++;
-            boardMatrixItems[i, j+n].Pop();
 
-            boardMatrix[i, j+n] = EMPTY;
-            boardMatrixItems[i, j+n] = null;
+            boardMatrix[i, j + n].Destroy();
         }
     }
-
+    
     //For debug usage
     private void PrintMatrix (string methodName)
     {
@@ -245,7 +224,7 @@ public class BoardController : MonoBehaviour
         {
             for (int j = 0; j < Model.COLS; j++)
             {
-                matrixAsString += boardMatrix[i, j] + ", ";
+                matrixAsString += boardMatrix[i, j].type + ", ";
             }
 
             matrixAsString += "\n";
@@ -254,4 +233,39 @@ public class BoardController : MonoBehaviour
         Debug.Log(matrixAsString);
     }
     #endregion    
+
+
+    #region Structs
+    public struct CellData
+    {
+        public int type;
+        public Item item;
+
+        public CellData (GameObject[] itemsPrefabs, Transform parent, Vector2 coordinates, Action OnDestroyCallback)
+        {
+            type = UnityEngine.Random.Range(0, itemsPrefabs.Length) + 1;
+
+            item = Instantiate(itemsPrefabs[type - 1], parent).GetComponent<Item>();
+            item.Init(coordinates, OnDestroyCallback);
+        }
+
+        public void Destroy()
+        {
+            item.Pop();
+
+            Empty();
+        }
+
+        public void Empty()
+        {
+            type = EMPTY;
+            item = null;
+        }
+
+        public bool isEmpty()
+        {
+            return type == EMPTY;
+        }
+    }
+    #endregion 
 }
