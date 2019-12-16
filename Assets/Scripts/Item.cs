@@ -11,12 +11,11 @@ using UnityEngine.UI;
 public class Item : MonoBehaviour
 {
     #region Private Fields
-    private int x;
-    private int y;
+    private Vector2 coordinates;
     
     private Image image;
     private RectTransform rectTransform;
-
+    
     [SerializeField] private GameObject popAnimation;
     private SpriteSheetAnimation popAnimationScript;
 
@@ -55,28 +54,28 @@ public class Item : MonoBehaviour
     #region Private Methods
     private void UpdateName ()
     {
-        gameObject.name = "[" + x + "," + y + "]";
+        gameObject.name = "[" + coordinates.x + "," + coordinates.y + "]";
     }
 
     private void UpdatePosition ()
     {
-        transform.position = new Vector2((x + 0.5f) * Model.CellSize + Model.BORDER_GAP, (y + 0.5f) * Model.CellSize + Model.BORDER_GAP);
+        //0.5f is added because items pivot is in the center
+        transform.position = new Vector2((coordinates.x + 0.5f) * Model.CellSize + Model.BORDER_GAP, (coordinates.y + 0.5f) * Model.CellSize + Model.BORDER_GAP);
     }
     #endregion
 
 
     #region Public Methods
-    public void Init (int x, int y, Action onDestroyCallback)
+    public void Init (Vector2 coordinates, Action onDestroyCallback)
     {
-        UpdateCoordinates (x, y);
+        UpdateCoordinates (coordinates);
 
         OnDestroyCallback = onDestroyCallback;
     }
 
-    public void UpdateCoordinates (int x, int y)
+    public void UpdateCoordinates (Vector2 coordinates)
     {
-        this.x = x;
-        this.y = y;
+        this.coordinates = coordinates;
 
         UpdateName ();
         UpdatePosition();
