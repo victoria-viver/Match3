@@ -114,7 +114,58 @@ public class BoardController : MonoBehaviour
         {
             toDestroy = destroyed = 0;
             PrintMatrix("OnItemDestroyed");
+            FillEmptyCells();
         }
+    }
+
+    private void FillEmptyCells()
+    {
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                if (boardMatrix[i, j] == EMPTY)
+                {
+                    int next = EMPTY;
+                    int jOfNext = j;
+
+                    while (next == EMPTY && jOfNext < height-1)
+                    {
+                        next = boardMatrix[i, ++jOfNext];
+                    }
+
+                    if (next != EMPTY) 
+                    {
+                        DropItem(i, j, jOfNext);
+                    }
+                    else //there is no more items in this vertical
+                    {
+                        for (int k = j; k < height; k++)
+                        {
+                            FillCell(i, k);
+                        }
+                    }
+                }
+            }
+        }
+
+        PrintMatrix("FillEmptyCells");
+
+        CheckForMatches();
+    }
+
+    private void DropItem(int i, int j, int jOfNext)
+    {
+        boardMatrix[i, j] = boardMatrix[i, jOfNext];
+
+        GameObject item = boardMatrixItems[i, jOfNext];
+        boardMatrixItems[i, j] = item;
+
+        item.name = "[" + i + "," + j + "]";
+        item.transform.position = new Vector2(i * cellSize + gap, j * cellSize + gap);
+
+        boardMatrix[i, jOfNext] = EMPTY;
+        boardMatrixItems[i, jOfNext] = null;
     }
 
     private void CheckForMatches ()
