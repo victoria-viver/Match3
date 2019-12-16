@@ -19,7 +19,7 @@ public class BoardController : MonoBehaviour
 	private int destroyed;
 
     private int[,] boardMatrix;
-    private GameObject[,] boardMatrixItems;
+    private Item[,] boardMatrixItems;
 	#endregion
 
 
@@ -59,7 +59,7 @@ public class BoardController : MonoBehaviour
     private void InitBoard()
     {
         boardMatrix = new int[Model.ROWS, Model.COLS];
-        boardMatrixItems = new GameObject[Model.ROWS, Model.COLS];
+        boardMatrixItems = new Item[Model.ROWS, Model.COLS];
 
         for (int i = 0; i < Model.COLS; i++)
         {
@@ -76,8 +76,8 @@ public class BoardController : MonoBehaviour
     {
         int itemID = GetNewItem(items.Length);
 
-        GameObject item = Instantiate(items[itemID - 1], board);
-        item.GetComponent<Item>().Init(i, j, OnItemDestroyed);
+        Item item = Instantiate(items[itemID - 1], board).GetComponent<Item>();
+        item.Init(i, j, OnItemDestroyed);
 
         boardMatrix[i, j] = itemID;
         boardMatrixItems[i, j] = item;
@@ -140,9 +140,9 @@ public class BoardController : MonoBehaviour
     {
         boardMatrix[i, j] = boardMatrix[i, jOfNext];
 
-        GameObject item = boardMatrixItems[i, jOfNext];
+        Item item = boardMatrixItems[i, jOfNext];
         boardMatrixItems[i, j] = item;        
-        item.GetComponent<Item>().UpdateCoordinates(i, j);
+        item.UpdateCoordinates(i, j);
 
         boardMatrix[i, jOfNext] = EMPTY;
         boardMatrixItems[i, jOfNext] = null;
@@ -217,7 +217,7 @@ public class BoardController : MonoBehaviour
         for (int n = 0; n < countH; n++)
         {
             toDestroy++;
-            boardMatrixItems[i + n, j].GetComponent<Item>().Pop();
+            boardMatrixItems[i + n, j].Pop();
 
             boardMatrix[i + n, j] = EMPTY;
             boardMatrixItems[i + n, j] = null;
@@ -229,7 +229,7 @@ public class BoardController : MonoBehaviour
         for (int n = 0; n < countV; n++)
         {
             toDestroy++;
-            boardMatrixItems[i, j+n].GetComponent<Item>().Pop();
+            boardMatrixItems[i, j+n].Pop();
 
             boardMatrix[i, j+n] = EMPTY;
             boardMatrixItems[i, j+n] = null;
