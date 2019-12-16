@@ -21,6 +21,8 @@ public class BoardController : MonoBehaviour
     [SerializeField] private float gap;
 
 	private int cellSize;
+	private int toDestroy;
+	private int destroyed;
 
     private int[,] boardMatrix;
     private GameObject[,] boardMatrixItems;
@@ -96,12 +98,24 @@ public class BoardController : MonoBehaviour
         item.name = "[" + i + "," + j + "]";
         item.transform.position = new Vector2(i * cellSize + gap, j * cellSize + gap);
         item.GetComponent<RectTransform>().sizeDelta = new Vector2(cellSize * 0.9f, cellSize * 0.9f);
+        item.GetComponent<Item>().Init(OnItemDestroyed);
     }
 
     private static int GetNewItem(int itemsNumber)
     {
         return UnityEngine.Random.Range(0, itemsNumber) + 1;
-    }   
+    }    
+
+    private void OnItemDestroyed()
+    {
+        destroyed++;     
+
+        if (toDestroy == destroyed)
+        {
+            toDestroy = destroyed = 0;
+            PrintMatrix("OnItemDestroyed");
+        }
+    }
 
     private void CheckForMatches ()
     {
@@ -115,6 +129,23 @@ public class BoardController : MonoBehaviour
                 {
                     int countH = CountSameH(i, j, onCheck);
                     int countV = CountSameV(i, j, onCheck);
+
+                    if (countH >= MATCH_MIN)
+                    {
+                        DestroyMatchH(i, j, countH);
+                    }
+
+                    if (countV >= MATCH_MIN)
+                    {
+                        if (countH >= MATCH_MIN)
+                        {
+                            DestroyMatchV(i, j + 1, countV - 1);
+                        }
+                        else
+                        {
+                            DestroyMatchV(i, j, countV);
+                        }
+                    }
                 }
             }
         }
@@ -148,6 +179,30 @@ public class BoardController : MonoBehaviour
         }
 
         return countV;
+    }
+
+    private void DestroyMatchH(int i, int j, int countH)
+    {
+        for (int n = 0; n < countH; n++)
+        {
+            toDestroy++;
+            boardMatrixItems[i + n, j].GetComponent<Item>().Pop();
+
+            boardMatrix[i + n, j] = EMPTY;
+            boardMatrixItems[i + n, j] = null;
+        }
+    }
+
+    private void DestroyMatchV(int i, int j, int countV)
+    {
+        for (int n = 0; n < countV; n++)
+        {
+            toDestroy++;
+            boardMatrixItems[i, j+n].GetComponent<Item>().Pop();
+
+            boardMatrix[i, j+n] = EMPTY;
+            boardMatrixItems[i, j+n] = null;
+        }
     }
 
     //For debug usage
