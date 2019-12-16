@@ -9,6 +9,7 @@ using UnityEngine;
 public class BoardController : MonoBehaviour
 {
     #region Constants
+    private const int MATCH_MIN = 3;
     private const int EMPTY = 0;
     private const int GAP = 100;
     #endregion
@@ -20,7 +21,7 @@ public class BoardController : MonoBehaviour
     [SerializeField] private float gap;
 
 	private int cellSize;
-	
+
     private int[,] boardMatrix;
     private GameObject[,] boardMatrixItems;
 	#endregion
@@ -59,6 +60,8 @@ public class BoardController : MonoBehaviour
     private void Init ()
     {
         InitBoard();
+
+        CheckForMatches();
     }
 
     private void InitBoard()
@@ -98,6 +101,53 @@ public class BoardController : MonoBehaviour
     private static int GetNewItem(int itemsNumber)
     {
         return UnityEngine.Random.Range(0, itemsNumber) + 1;
+    }   
+
+    private void CheckForMatches ()
+    {
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                int onCheck = boardMatrix[i, j];
+
+                if (onCheck != EMPTY)
+                {
+                    int countH = CountSameH(i, j, onCheck);
+                    int countV = CountSameV(i, j, onCheck);
+                }
+            }
+        }
+    }
+
+    private int CountSameH(int i, int j, int onCheck)
+    {
+        int countH = 1;
+
+        for (int k = i + 1; k < width; k++)
+        {
+            if (boardMatrix[k, j] == onCheck)
+                countH++;
+            else
+                break;
+        }
+
+        return countH;
+    }
+
+    private int CountSameV(int i, int j, int onCheck)
+    {
+        int countV = 1;
+
+        for (int k = j + 1; k < height; k++)
+        {
+            if (boardMatrix[i, k] == onCheck)
+                countV++;
+            else
+                break;
+        }
+
+        return countV;
     }
 
     //For debug usage
