@@ -57,7 +57,7 @@ public class BoardController : MonoBehaviour
 
     private void InitBoard()
     {
-        boardMatrix = new CellData[Model.ROWS, Model.COLS];
+        boardMatrix = new CellData[Model.COLS, Model.ROWS];
 
         for (int i = 0; i < Model.COLS; i++)
         {
@@ -98,7 +98,7 @@ public class BoardController : MonoBehaviour
                     int next = EMPTY;
                     int yOfNext = j;
 
-                    while (next == EMPTY && yOfNext < Model.COLS-1)
+                    while (next == EMPTY && yOfNext < Model.ROWS-1)
                     {
                         next = boardMatrix[i, ++yOfNext].type;
                     }
@@ -109,7 +109,7 @@ public class BoardController : MonoBehaviour
                     }
                     else //there is no more items in this vertical
                     {
-                        for (int k = j; k < Model.COLS; k++)
+                        for (int k = j; k < Model.ROWS; k++)
                         {
                             FillCell(i, k);
                         }
@@ -133,31 +133,31 @@ public class BoardController : MonoBehaviour
 
     private void CheckForMatches ()
     {
-        for (int i = 0; i < Model.ROWS; i++)
+        for (int i = 0; i < Model.COLS; i++)
         {
-            for (int j = 0; j < Model.COLS; j++)
+            for (int j = 0; j < Model.ROWS; j++)
             {
                 int onCheck = boardMatrix[i, j].type;
 
                 if (onCheck != EMPTY)
                 {
-                    int numberOfSameInRow = CountSameInRow(i, j, onCheck);
                     int numberOfSameInCol = CountSameInColumn(i, j, onCheck);
-
-                    if (numberOfSameInRow >= MATCH_MIN)
-                    {
-                        DestroyMatchInRow(i, j, numberOfSameInRow);
-                    }
+                    int numberOfSameInRow = CountSameInRow(i, j, onCheck);
 
                     if (numberOfSameInCol >= MATCH_MIN)
                     {
-                        if (numberOfSameInRow >= MATCH_MIN)
+                        DestroyMatchInColumn(i, j, numberOfSameInCol);
+                    }
+
+                    if (numberOfSameInRow >= MATCH_MIN)
+                    {
+                        if (numberOfSameInCol >= MATCH_MIN)
                         {
-                            DestroyMatchInColumn(i, j + 1, numberOfSameInCol - 1);
+                            DestroyMatchInRow(i, j + 1, numberOfSameInRow - 1);
                         }
                         else
                         {
-                            DestroyMatchInColumn(i, j, numberOfSameInCol);
+                            DestroyMatchInRow(i, j, numberOfSameInRow);
                         }
                     }
                 }
@@ -167,26 +167,11 @@ public class BoardController : MonoBehaviour
 
     private int CountSameInRow(int startX, int startY, int onCheck)
     {
-        int numberOfSameInRow = 1;
-
-        for (int k = startX + 1; k < Model.ROWS; k++)
-        {
-            if (boardMatrix[k, startY].type == onCheck)
-                numberOfSameInRow++;
-            else
-                break;
-        }
-
-        return numberOfSameInRow;
-    }
-
-    private int CountSameInColumn(int startX, int startY, int onCheck)
-    {
         int numberOfSameInCol = 1;
 
-        for (int k = startY + 1; k < Model.COLS; k++)
+        for (int k = startX + 1; k < Model.COLS; k++)
         {
-            if (boardMatrix[startX, k].type == onCheck)
+            if (boardMatrix[k, startY].type == onCheck)
                 numberOfSameInCol++;
             else
                 break;
@@ -195,14 +180,19 @@ public class BoardController : MonoBehaviour
         return numberOfSameInCol;
     }
 
-    private void DestroyMatchInRow(int startX, int startY, int numberOfSameInRow)
+    private int CountSameInColumn(int startX, int startY, int onCheck)
     {
-        for (int n = 0; n < numberOfSameInRow; n++)
-        {
-            toDestroy++;
+        int numberOfSameInRow = 1;
 
-            boardMatrix[startX + n, startY].Destroy();
+        for (int k = startY + 1; k < Model.ROWS; k++)
+        {
+            if (boardMatrix[startX, k].type == onCheck)
+                numberOfSameInRow++;
+            else
+                break;
         }
+
+        return numberOfSameInRow;
     }
 
     private void DestroyMatchInColumn(int startX, int startY, int numberOfSameInCol)
@@ -214,17 +204,29 @@ public class BoardController : MonoBehaviour
             boardMatrix[startX, startY + n].Destroy();
         }
     }
+
+    private void DestroyMatchInRow(int startX, int startY, int numberOfSameInRow)
+    {
+        for (int n = 0; n < numberOfSameInRow; n++)
+        {
+            toDestroy++;
+
+            boardMatrix[startX + n, startY].Destroy();
+        }
+    }
     
     //For debug usage
     private void PrintMatrix (string methodName)
     {
         string matrixAsString = methodName + "\n";
 
-        for (int i = 0; i < Model.ROWS; i++)
+        //Reversed for seeing it like the UI
+        for (int i = Model.ROWS - 1; i >= 0; i--)
         {
             for (int j = 0; j < Model.COLS; j++)
             {
-                matrixAsString += boardMatrix[i, j].type + ", ";
+                //Reversed for seeing it like the UI
+                matrixAsString += boardMatrix[j, i].type + ", ";
             }
 
             matrixAsString += "\n";

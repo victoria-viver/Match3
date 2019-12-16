@@ -17,8 +17,8 @@ public static class Model
     { 
         get
         {
-            int cellWidth = (Screen.width - BORDER_GAP * 2) / ROWS;
-            int cellHeight = (Screen.height - BORDER_GAP * 2) / COLS;
+            int cellWidth = (Screen.width - BORDER_GAP * 2) / COLS;
+            int cellHeight = (Screen.height - BORDER_GAP * 2) / ROWS;
 
             return Math.Min(cellWidth, cellWidth);
         }
