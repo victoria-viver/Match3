@@ -30,7 +30,7 @@ public class ScoreCounter : MonoBehaviour
 
     void Start()
     {
-        score.text = string.Empty;
+        score.text = currentScore.ToString();
     }
 
     void Update()

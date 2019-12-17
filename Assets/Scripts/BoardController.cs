@@ -18,8 +18,16 @@ public class BoardController : MonoBehaviour
     #region Private Fields
 	private int toDestroy;
 	private int destroyed;
-	private int currentlyMovingRow;
-	private int currentlyMovingColumn;
+
+	private int currentlyMovingRow = NONE;
+	private int currentlyMovingColumn = NONE;
+
+	private int lastMovedRow = NONE;
+	private int lastMovedColumn = NONE;
+
+    private int stepsInRow = 0;
+	private int stepsInColumn = 0;
+
     private CellData[,] boardMatrix;
 	#endregion
 
@@ -43,7 +51,7 @@ public class BoardController : MonoBehaviour
     {
         InitBoard();
 
-        CheckForMatches();
+        PopMatches();
     }
 
     private void InitBoard()
@@ -75,6 +83,7 @@ public class BoardController : MonoBehaviour
             if (currentlyMovingRow == NONE || currentlyMovingRow == row)
             {
                 currentlyMovingRow = row;
+                lastMovedRow = row;
 
                 if (delta.x/Model.CellSize > 0)
                 {
@@ -92,7 +101,8 @@ public class BoardController : MonoBehaviour
 
             if (currentlyMovingColumn == NONE || currentlyMovingColumn == column)
             {
-                int currentlyMovingColumn = column;
+                currentlyMovingColumn = column;
+                lastMovedColumn = column;
 
                 if (delta.y/Model.CellSize > 0)
                 {
@@ -108,6 +118,8 @@ public class BoardController : MonoBehaviour
 
     private void MoveColumnUp(int columnID)
     {
+        stepsInColumn++;
+
         CellData cellData = boardMatrix[columnID, Model.ROWS - 1];
 
         for (int i = Model.ROWS - 1; i > 0; i--)
@@ -122,6 +134,8 @@ public class BoardController : MonoBehaviour
 
     private void MoveColumnDown(int columnID)
     {
+        stepsInColumn--;
+
         CellData cellData = boardMatrix[columnID, 0];
 
         for (int i = 0; i < Model.ROWS - 1; i++)
@@ -136,6 +150,8 @@ public class BoardController : MonoBehaviour
 
     private void MoveRowRight(int rowID)
     {
+        stepsInRow++;
+
         CellData cellData = boardMatrix[Model.COLS - 1, rowID];
 
         for (int i = Model.COLS - 1; i > 0; i--)
@@ -150,6 +166,8 @@ public class BoardController : MonoBehaviour
 
     private void MoveRowLeft(int rowID)
     {
+        stepsInRow--;
+
         CellData cellData = boardMatrix[0, rowID];
 
         for (int i = 0; i < Model.COLS - 1; i++)
@@ -167,7 +185,37 @@ public class BoardController : MonoBehaviour
         currentlyMovingRow = NONE;
         currentlyMovingColumn = NONE;
 
-        CheckForMatches();
+        if (IsTurnValid())
+        {
+            PopMatches();
+        }
+        else
+        {
+            ReverseMovements ();
+        }
+    }
+
+    private void ReverseMovements()
+    {
+        while (stepsInRow > 0)
+        {
+            MoveRowLeft(lastMovedRow);
+        }
+
+        while (stepsInRow < 0)
+        {
+            MoveRowRight(lastMovedRow);
+        }
+
+        while (stepsInColumn > 0)
+        {
+            MoveColumnDown(lastMovedColumn);
+        }
+
+        while (stepsInColumn < 0)
+        {
+            MoveColumnUp(lastMovedColumn);
+        }   
     }
 
     private void OnItemDestroyed()
@@ -215,7 +263,10 @@ public class BoardController : MonoBehaviour
 
         PrintMatrix("FillEmptyCells");
 
-        CheckForMatches();
+        if (IsTurnValid())
+        {
+            PopMatches();
+        }
     }
 
     private void DropItem(int x, int y, int yOfNext)
@@ -226,7 +277,36 @@ public class BoardController : MonoBehaviour
         boardMatrix[x, yOfNext].Empty();
     }
 
-    private void CheckForMatches ()
+    private bool IsTurnValid ()
+    {
+        for (int i = 0; i < Model.COLS; i++)
+        {
+            for (int j = 0; j < Model.ROWS; j++)
+            {
+                int onCheck = boardMatrix[i, j].type;
+
+                if (onCheck != EMPTY)
+                {
+                    int numberOfSameInCol = CountSameInColumn(i, j, onCheck);
+                    int numberOfSameInRow = CountSameInRow(i, j, onCheck);
+
+                    if (numberOfSameInCol >= MATCH_MIN)
+                    {
+                        return true;
+                    }
+
+                    if (numberOfSameInRow >= MATCH_MIN)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    private void PopMatches ()
     {
         for (int i = 0; i < Model.COLS; i++)
         {
