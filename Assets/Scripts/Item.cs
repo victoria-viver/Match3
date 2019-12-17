@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Item : MonoBehaviour
+public class Item : MonoBehaviour, IDragHandler, IEndDragHandler
 {
     #region Private Fields
     private Vector2 coordinates;
@@ -19,7 +19,11 @@ public class Item : MonoBehaviour
     [SerializeField] private GameObject popAnimation;
     private SpriteSheetAnimation popAnimationScript;
 
+    private Action<Vector2, Vector2> OnMovementCallback;
+    private Action OnMovementStopCallback;
     private Action OnDestroyCallback;
+
+    private Vector2 startPosition;
     #endregion
 
 
@@ -39,14 +43,24 @@ public class Item : MonoBehaviour
         popAnimationScript.Init(OnPopAnimationEnd);
     }
 
-    void Update()
-    {
-        
-    }
-
     void OnDestroy()
     {
         OnDestroyCallback();
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        float deltaX = eventData.position.x - startPosition.x;
+        float deltaY = eventData.position.y - startPosition.y;
+        float delta = Math.Abs(deltaX) > Math.Abs(deltaY) ? deltaX : deltaY;
+
+        if (Math.Abs(delta) > Model.CellSize/2)
+            OnMovementCallback(coordinates, new Vector2(deltaX, deltaY));
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        OnMovementStopCallback ();
     }
     #endregion
 
@@ -61,15 +75,18 @@ public class Item : MonoBehaviour
     {
         //0.5f is added because items pivot is in the center
         transform.position = new Vector2((coordinates.x + 0.5f) * Model.CellSize + Model.BORDER_GAP, (coordinates.y + 0.5f) * Model.CellSize + Model.BORDER_GAP);
+        startPosition = transform.position;
     }
     #endregion
 
 
     #region Public Methods
-    public void Init (Vector2 coordinates, Action onDestroyCallback)
+    public void Init (Vector2 coordinates, Action<Vector2, Vector2> onMovementCallback, Action onMovementStopCallback, Action onDestroyCallback)
     {
         UpdateCoordinates (coordinates);
 
+        OnMovementCallback = onMovementCallback;
+        OnMovementStopCallback = onMovementStopCallback;
         OnDestroyCallback = onDestroyCallback;
     }
 

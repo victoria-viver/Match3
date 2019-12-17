@@ -5,6 +5,7 @@
 
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BoardController : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class BoardController : MonoBehaviour
     #region Private Fields
 	private int toDestroy;
 	private int destroyed;
+	private int currentScore;
 
     private CellData[,] boardMatrix;
 	#endregion
@@ -24,6 +26,7 @@ public class BoardController : MonoBehaviour
 
     #region Links
     [SerializeField] private Transform board;
+    [SerializeField] private Text score;
     [SerializeField] private GameObject[] itemsPrefabs;
     #endregion
 
@@ -31,18 +34,9 @@ public class BoardController : MonoBehaviour
     #region Unity Methods
     void Awake()
     {
+        score.text = string.Empty;
 
         Init();
-    }
-
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        
     }
     #endregion
 
@@ -72,7 +66,98 @@ public class BoardController : MonoBehaviour
 
     private void FillCell(int x, int y)
     {
-        boardMatrix[x, y] = new CellData(itemsPrefabs, board, new Vector2(x, y), OnItemDestroyed);
+        boardMatrix[x, y] = new CellData(itemsPrefabs, board, new Vector2(x, y), MoveItems, StopMoveItems, OnItemDestroyed);
+    }
+
+    private void MoveItems(Vector2 touchedCoordinates, Vector2 delta)
+    {
+        if (Math.Abs(delta.x) > Math.Abs(delta.y))
+        {
+            int y = (int)touchedCoordinates.y;
+
+            if (delta.x/Model.CellSize > 0)
+            {
+                MoveColumnRight (y);
+            }
+            else
+            {                
+                MoveColumnLeft (y);
+            }
+        }
+        else
+        {
+            int x = (int)touchedCoordinates.x;
+
+            if (delta.y/Model.CellSize > 0)
+            {
+                MoveColumnUp (x);
+            }
+            else
+            {                
+                MoveColumnDown (x);
+            }
+        }
+    }
+
+    private void MoveColumnUp(int columnID)
+    {
+        CellData cellData = boardMatrix[columnID, Model.ROWS - 1];
+
+        for (int i = Model.ROWS - 1; i > 0; i--)
+        {
+            boardMatrix[columnID, i] = boardMatrix[columnID, i - 1];
+            boardMatrix[columnID, i].item.UpdateCoordinates(new Vector2(columnID, i));
+        }
+
+        boardMatrix[columnID, 0] = cellData;
+        boardMatrix[columnID, 0].item.UpdateCoordinates(new Vector2(columnID, 0));
+    }
+
+    private void MoveColumnDown(int columnID)
+    {
+        CellData cellData = boardMatrix[columnID, 0];
+
+        for (int i = 0; i < Model.ROWS - 1; i++)
+        {
+            boardMatrix[columnID, i] = boardMatrix[columnID, i + 1];
+            boardMatrix[columnID, i].item.UpdateCoordinates(new Vector2(columnID, i));
+        }
+
+        boardMatrix[columnID, Model.ROWS - 1] = cellData;
+        boardMatrix[columnID, Model.ROWS - 1].item.UpdateCoordinates(new Vector2(columnID, Model.ROWS - 1));
+    }
+
+    private void MoveColumnRight(int rowID)
+    {
+        CellData cellData = boardMatrix[Model.COLS - 1, rowID];
+
+        for (int i = Model.COLS - 1; i > 0; i--)
+        {
+            boardMatrix[i, rowID] = boardMatrix[i - 1, rowID];
+            boardMatrix[i, rowID].item.UpdateCoordinates(new Vector2(i, rowID));
+        }
+
+        boardMatrix[0, rowID] = cellData;
+        boardMatrix[0, rowID].item.UpdateCoordinates(new Vector2(0, rowID));
+    }
+
+    private void MoveColumnLeft(int rowID)
+    {
+        CellData cellData = boardMatrix[0, rowID];
+
+        for (int i = 0; i < Model.COLS - 1; i++)
+        {
+            boardMatrix[i, rowID] = boardMatrix[i + 1, rowID];
+            boardMatrix[i, rowID].item.UpdateCoordinates(new Vector2(i, rowID));
+        }
+
+        boardMatrix[Model.COLS - 1, rowID] = cellData;
+        boardMatrix[Model.COLS - 1, rowID].item.UpdateCoordinates(new Vector2(Model.COLS - 1, rowID));
+    }    
+
+    private void StopMoveItems()
+    {
+        CheckForMatches();
     }
 
     private void OnItemDestroyed()
@@ -202,6 +287,8 @@ public class BoardController : MonoBehaviour
             toDestroy++;
 
             boardMatrix[startX, startY + n].Destroy();
+
+            UpdateScore();
         }
     }
 
@@ -212,7 +299,15 @@ public class BoardController : MonoBehaviour
             toDestroy++;
 
             boardMatrix[startX + n, startY].Destroy();
+            
+            UpdateScore();
         }
+    }
+
+    private void UpdateScore()
+    {
+        currentScore += Model.POINTS_PER_ITEM;
+        score.text = currentScore.ToString();
     }
     
     //For debug usage
@@ -243,12 +338,12 @@ public class BoardController : MonoBehaviour
         public int type;
         public Item item;
 
-        public CellData (GameObject[] itemsPrefabs, Transform parent, Vector2 coordinates, Action OnDestroyCallback)
+        public CellData (GameObject[] itemsPrefabs, Transform parent, Vector2 coordinates, Action<Vector2, Vector2> OnMovementCallback, Action OnMovementStopCallback, Action OnDestroyCallback)
         {
             type = UnityEngine.Random.Range(0, itemsPrefabs.Length) + 1;
 
             item = Instantiate(itemsPrefabs[type - 1], parent).GetComponent<Item>();
-            item.Init(coordinates, OnDestroyCallback);
+            item.Init(coordinates, OnMovementCallback, OnMovementStopCallback, OnDestroyCallback);
         }
 
         public void Destroy()
