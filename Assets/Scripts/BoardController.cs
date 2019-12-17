@@ -10,13 +10,16 @@ public class BoardController : MonoBehaviour
 {
     #region Constants
     private const int MATCH_MIN = 3;
-    private const int EMPTY = 0;    
+    private const int EMPTY = 0;
+    public const int NONE = -1;
     #endregion
 
 
     #region Private Fields
 	private int toDestroy;
 	private int destroyed;
+	private int currentlyMovingRow;
+	private int currentlyMovingColumn;
     private CellData[,] boardMatrix;
 	#endregion
 
@@ -67,28 +70,38 @@ public class BoardController : MonoBehaviour
     {
         if (Math.Abs(delta.x) > Math.Abs(delta.y))
         {
-            int y = (int)touchedCoordinates.y;
+            int row = (int)touchedCoordinates.y;
 
-            if (delta.x/Model.CellSize > 0)
+            if (currentlyMovingRow == NONE || currentlyMovingRow == row)
             {
-                MoveColumnRight (y);
-            }
-            else
-            {                
-                MoveColumnLeft (y);
+                currentlyMovingRow = row;
+
+                if (delta.x/Model.CellSize > 0)
+                {
+                    MoveRowRight (currentlyMovingRow);
+                }
+                else
+                {                
+                    MoveRowLeft (currentlyMovingRow);
+                }
             }
         }
         else
         {
-            int x = (int)touchedCoordinates.x;
+            int column = (int)touchedCoordinates.x;
 
-            if (delta.y/Model.CellSize > 0)
+            if (currentlyMovingColumn == NONE || currentlyMovingColumn == column)
             {
-                MoveColumnUp (x);
-            }
-            else
-            {                
-                MoveColumnDown (x);
+                int currentlyMovingColumn = column;
+
+                if (delta.y/Model.CellSize > 0)
+                {
+                    MoveColumnUp (currentlyMovingColumn);
+                }
+                else
+                {                
+                    MoveColumnDown (currentlyMovingColumn);
+                }
             }
         }
     }
@@ -121,7 +134,7 @@ public class BoardController : MonoBehaviour
         boardMatrix[columnID, Model.ROWS - 1].item.UpdateCoordinates(new Vector2(columnID, Model.ROWS - 1));
     }
 
-    private void MoveColumnRight(int rowID)
+    private void MoveRowRight(int rowID)
     {
         CellData cellData = boardMatrix[Model.COLS - 1, rowID];
 
@@ -135,7 +148,7 @@ public class BoardController : MonoBehaviour
         boardMatrix[0, rowID].item.UpdateCoordinates(new Vector2(0, rowID));
     }
 
-    private void MoveColumnLeft(int rowID)
+    private void MoveRowLeft(int rowID)
     {
         CellData cellData = boardMatrix[0, rowID];
 
@@ -151,6 +164,9 @@ public class BoardController : MonoBehaviour
 
     private void StopMoveItems()
     {
+        currentlyMovingRow = NONE;
+        currentlyMovingColumn = NONE;
+
         CheckForMatches();
     }
 
