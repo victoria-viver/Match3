@@ -38,22 +38,7 @@ public class BoardController : MonoBehaviour
     #endregion
 
 
-    #region Unity Methods
-    void Awake()
-    {
-        Init();
-    }
-    #endregion
-
-
     #region Private Methods
-    private void Init ()
-    {
-        InitBoard();
-
-        PopMatches();
-    }
-
     private void InitBoard()
     {
         boardMatrix = new CellData[Model.COLS, Model.ROWS];
@@ -412,6 +397,16 @@ public class BoardController : MonoBehaviour
         }
 
         Debug.Log(matrixAsString);
+    }
+    #endregion
+
+
+    #region Public Methods
+    public void Init ()
+    {
+        InitBoard();
+
+        PopMatches();
     }
     #endregion    
 

@@ -51,6 +51,14 @@ public class GameManager : MonoBehaviour
 		//
 	}
 
+	void Start() 
+	{
+		board.Init();	
+	}
+	#endregion
+
+
+    #region Public Methods
     public void UpdateScore(int newPoints)
     {
         score.UpdateScore(newPoints);
