@@ -66,7 +66,7 @@ public class BoardController : MonoBehaviour
             }
         }
 
-        PrintMatrix("InitBoard");
+        // PrintMatrix("InitBoard");
     }
 
     private void FillCell(int x, int y)
@@ -225,7 +225,7 @@ public class BoardController : MonoBehaviour
         if (toDestroy == destroyed)
         {
             toDestroy = destroyed = 0;
-            PrintMatrix("OnItemDestroyed");
+            // PrintMatrix("OnItemDestroyed");
             FillEmptyCells();
         }
     }
@@ -261,7 +261,7 @@ public class BoardController : MonoBehaviour
             }
         }
 
-        PrintMatrix("FillEmptyCells");
+        // PrintMatrix("FillEmptyCells");
 
         if (IsTurnValid())
         {
