@@ -5,7 +5,6 @@
 
 using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class BoardController : MonoBehaviour
 {
@@ -18,15 +17,12 @@ public class BoardController : MonoBehaviour
     #region Private Fields
 	private int toDestroy;
 	private int destroyed;
-	private int currentScore;
-
     private CellData[,] boardMatrix;
 	#endregion
 
 
     #region Links
     [SerializeField] private Transform board;
-    [SerializeField] private Text score;
     [SerializeField] private GameObject[] itemsPrefabs;
     #endregion
 
@@ -34,8 +30,6 @@ public class BoardController : MonoBehaviour
     #region Unity Methods
     void Awake()
     {
-        score.text = string.Empty;
-
         Init();
     }
     #endregion
@@ -288,7 +282,7 @@ public class BoardController : MonoBehaviour
 
             boardMatrix[startX, startY + n].Destroy();
 
-            UpdateScore();
+            GameManager.Instance.UpdateScore(Model.POINTS_PER_ITEM);
         }
     }
 
@@ -300,14 +294,8 @@ public class BoardController : MonoBehaviour
 
             boardMatrix[startX + n, startY].Destroy();
             
-            UpdateScore();
+            GameManager.Instance.UpdateScore(Model.POINTS_PER_ITEM);
         }
-    }
-
-    private void UpdateScore()
-    {
-        currentScore += Model.POINTS_PER_ITEM;
-        score.text = currentScore.ToString();
     }
     
     //For debug usage

@@ -280,6 +280,7 @@ GameObject:
   - component: {fileID: 634387618}
   - component: {fileID: 634387620}
   - component: {fileID: 634387619}
+  - component: {fileID: 634387621}
   m_Layer: 5
   m_Name: Score
   m_TagString: Untagged
@@ -346,6 +347,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 634387617}
   m_CullTransparentMesh: 0
+--- !u!114 &634387621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 634387617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c58c84ebb0c9c7448a534b8098709f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  score: {fileID: 0}
 --- !u!1 &791182124
 GameObject:
   m_ObjectHideFlags: 0
@@ -355,6 +369,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 791182125}
+  - component: {fileID: 791182126}
   m_Layer: 5
   m_Name: Board
   m_TagString: Untagged
@@ -381,6 +396,26 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &791182126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791182124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8067a26fad9e84b498c14eb7ac8e7e5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  board: {fileID: 791182125}
+  itemsPrefabs:
+  - {fileID: 3537188188107489394, guid: c18f0da6e071ad14086ddfba0a4443aa, type: 3}
+  - {fileID: 4871587465057312952, guid: 731cd77d1e3646240a0fb01c71cdbaa7, type: 3}
+  - {fileID: 8450105834751376033, guid: f457f029652989f4882d983cf9bdf76e, type: 3}
+  - {fileID: 386436391838308264, guid: 543647f6dcb0e5941ab96dcdb2c40ae7, type: 3}
+  - {fileID: 6109822433990389729, guid: 0aa443962284f9b42b50c7da7f0c1979, type: 3}
+  - {fileID: 8765782742113935444, guid: f4ecb6f823b383e46a59bae1620d7e4e, type: 3}
 --- !u!1 &1000306050
 GameObject:
   m_ObjectHideFlags: 0
@@ -410,18 +445,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1000306050}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8067a26fad9e84b498c14eb7ac8e7e5f, type: 3}
+  m_Script: {fileID: 11500000, guid: 51e334cc793d6604395b1eb9b4c7ece6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  board: {fileID: 791182125}
-  score: {fileID: 634387619}
-  itemsPrefabs:
-  - {fileID: 3537188188107489394, guid: c18f0da6e071ad14086ddfba0a4443aa, type: 3}
-  - {fileID: 4871587465057312952, guid: 731cd77d1e3646240a0fb01c71cdbaa7, type: 3}
-  - {fileID: 8450105834751376033, guid: f457f029652989f4882d983cf9bdf76e, type: 3}
-  - {fileID: 386436391838308264, guid: 543647f6dcb0e5941ab96dcdb2c40ae7, type: 3}
-  - {fileID: 6109822433990389729, guid: 0aa443962284f9b42b50c7da7f0c1979, type: 3}
-  - {fileID: 8765782742113935444, guid: f4ecb6f823b383e46a59bae1620d7e4e, type: 3}
+  score: {fileID: 634387621}
+  board: {fileID: 791182126}
 --- !u!114 &1000306052
 MonoBehaviour:
   m_ObjectHideFlags: 0
