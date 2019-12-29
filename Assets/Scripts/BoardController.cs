@@ -38,6 +38,20 @@ public class BoardController : MonoBehaviour
     #endregion
 
 
+    #region Unity Methods
+    void Awake()
+    {
+        RectTransform rectTransform = GetComponent<RectTransform>();
+
+        int width = Model.CellSize * Model.COLS + Model.BORDER_GAP;
+        int height = Model.CellSize * Model.ROWS + Model.BORDER_GAP;
+
+        GetComponent<RectTransform>().sizeDelta = new Vector2 (width, height);
+        GetComponent<RectTransform>().position = new Vector2 (Model.BORDER_GAP/2 + width/2, Model.BORDER_GAP/2 + height/2);
+    }
+    #endregion
+    
+
     #region Private Methods
     private void InitBoard()
     {
