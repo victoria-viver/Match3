@@ -95,7 +95,11 @@ public class BoardController : MonoBehaviour
                     {                
                         MoveRowLeft (currentlyMovingRow);
                     }
-                }          
+                }
+                else
+                {
+                    MovePartiallyRow(currentlyMovingRow, delta.x);
+                }                
             }
         }
         else
@@ -119,7 +123,27 @@ public class BoardController : MonoBehaviour
                         MoveColumnDown (currentlyMovingColumn);
                     }
                 }
+                else
+                {
+                    MovePartiallyColumn(currentlyMovingColumn, delta.y);
+                }   
             }
+        }
+    }
+
+    private void MovePartiallyRow(int rowID, float x)
+    {
+        for (int i = 0; i < Model.COLS; i++)
+        {
+            boardMatrix[i, rowID].item.MovePartially(new Vector2 (x, 0));
+        }
+    }
+
+    private void MovePartiallyColumn(int columnID, float y)
+    {
+        for (int i = 0; i < Model.ROWS; i++)
+        {
+            boardMatrix[columnID, i].item.MovePartially(new Vector2 (0, y));
         }
     }
 
