@@ -163,7 +163,7 @@ public class BoardController : MonoBehaviour
 
         boardMatrix[Model.COLS - 1, rowID] = cellData;
         boardMatrix[Model.COLS - 1, rowID].item.UpdateCoordinates(new Vector2(Model.COLS - 1, rowID));
-    }    
+    }
 
     private void StopMoveItems()
     {
@@ -209,6 +209,8 @@ public class BoardController : MonoBehaviour
 
         if (toDestroy == destroyed)
         {
+            GameManager.Instance.BlockScreen (false);
+
             toDestroy = destroyed = 0;
             // PrintMatrix("OnItemDestroyed");
             FillEmptyCells();
@@ -357,6 +359,8 @@ public class BoardController : MonoBehaviour
 
     private void DestroyMatchInColumn(int startX, int startY, int numberOfSameInCol)
     {
+        GameManager.Instance.BlockScreen (true);
+
         for (int n = 0; n < numberOfSameInCol; n++)
         {
             toDestroy++;
@@ -369,6 +373,8 @@ public class BoardController : MonoBehaviour
 
     private void DestroyMatchInRow(int startX, int startY, int numberOfSameInRow)
     {
+        GameManager.Instance.BlockScreen (true);
+
         for (int n = 0; n < numberOfSameInRow; n++)
         {
             toDestroy++;

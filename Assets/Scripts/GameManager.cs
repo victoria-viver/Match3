@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     #region Links
     [SerializeField] private ScoreCounter score;
     [SerializeField] private BoardController board;
+    [SerializeField] private GameObject screenBlocker;
     #endregion
 
 
@@ -53,6 +54,7 @@ public class GameManager : MonoBehaviour
 
 	void Start() 
 	{
+		BlockScreen (false);
 		board.Init();	
 	}
 	#endregion
@@ -63,5 +65,10 @@ public class GameManager : MonoBehaviour
     {
         score.AddPoints(points);
     }
+
+	public void BlockScreen (bool isBlocked)
+	{
+		screenBlocker.SetActive (isBlocked);
+	}
     #endregion
 }
