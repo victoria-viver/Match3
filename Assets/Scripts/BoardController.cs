@@ -79,37 +79,45 @@ public class BoardController : MonoBehaviour
         {
             int row = (int)touchedCoordinates.y;
 
-            if (currentlyMovingRow == NONE || currentlyMovingRow == row)
+            if (currentlyMovingColumn == NONE &&
+                (currentlyMovingRow == NONE || currentlyMovingRow == row))
             {
                 currentlyMovingRow = row;
                 lastMovedRow = row;
 
-                if (delta.x/Model.CellSize > 0)
+                if (Math.Abs(delta.x) >= Model.CellSize)
                 {
-                    MoveRowRight (currentlyMovingRow);
-                }
-                else
-                {                
-                    MoveRowLeft (currentlyMovingRow);
-                }
+                    if (delta.x > 0)
+                    {
+                        MoveRowRight (currentlyMovingRow);
+                    }
+                    else
+                    {                
+                        MoveRowLeft (currentlyMovingRow);
+                    }
+                }          
             }
         }
         else
-        {
+        {            
             int column = (int)touchedCoordinates.x;
 
-            if (currentlyMovingColumn == NONE || currentlyMovingColumn == column)
+            if (currentlyMovingRow == NONE &&
+                (currentlyMovingColumn == NONE || currentlyMovingColumn == column))
             {
                 currentlyMovingColumn = column;
                 lastMovedColumn = column;
-
-                if (delta.y/Model.CellSize > 0)
+               
+                if (Math.Abs(delta.y) >= Model.CellSize)
                 {
-                    MoveColumnUp (currentlyMovingColumn);
-                }
-                else
-                {                
-                    MoveColumnDown (currentlyMovingColumn);
+                    if (delta.y > 0)
+                    {
+                        MoveColumnUp (currentlyMovingColumn);
+                    }
+                    else
+                    {                
+                        MoveColumnDown (currentlyMovingColumn);
+                    }
                 }
             }
         }
@@ -187,15 +195,24 @@ public class BoardController : MonoBehaviour
         if (IsTurnValid())
         {
             PopMatches();
+
+            stepsInRow = 0;
+            stepsInColumn = 0;
         }
         else
         {
             ReverseMovements ();
+
+            lastMovedRow = NONE;
+            lastMovedColumn = NONE;
         }
     }
 
     private void ReverseMovements()
     {
+        stepsInRow = stepsInRow % Model.ROWS;
+        stepsInColumn = stepsInColumn % Model.COLS;
+
         while (stepsInRow > 0)
         {
             MoveRowLeft(lastMovedRow);
