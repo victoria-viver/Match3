@@ -10,9 +10,10 @@ public class ScoreCounter : MonoBehaviour
 {
     #region Private Fields
 	private int currentScore = 0;
+	private int startScore = 0;
 	private int targetScore = 0;
 
-    private int animLengthInFrames = 20;
+    private int animLengthInFrames = 10;
     private int currentFrame = 0;
     #endregion
 
@@ -38,8 +39,8 @@ public class ScoreCounter : MonoBehaviour
         if (currentScore < targetScore)
         {
             currentFrame++;
-            currentScore += (targetScore - currentScore) * currentFrame / animLengthInFrames;
-            currentFrame = (currentFrame == animLengthInFrames) ? 0 : currentFrame;
+
+            currentScore = startScore + (int) ((targetScore - startScore) * (float) currentFrame / (float) animLengthInFrames);
 
             score.text = currentScore.ToString();
         }
@@ -48,9 +49,13 @@ public class ScoreCounter : MonoBehaviour
 
 
     #region Public Methods
-    public void UpdateScore (int newPoints)
+    public void AddPoints (int points)
     {
-        targetScore += newPoints;
+        startScore = targetScore;
+
+        targetScore += points;
+
+        currentFrame = 0;
     }
     #endregion
 }

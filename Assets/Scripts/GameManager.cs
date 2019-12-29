@@ -59,9 +59,9 @@ public class GameManager : MonoBehaviour
 
 
     #region Public Methods
-    public void UpdateScore(int newPoints)
+    public void UpdateScore(int points)
     {
-        score.UpdateScore(newPoints);
+        score.AddPoints(points);
     }
     #endregion
 }
