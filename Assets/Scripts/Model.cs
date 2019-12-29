@@ -8,7 +8,7 @@ using UnityEngine;
 
 public static class Model 
 {
-    public const int BORDER_GAP = 100;
+    public const int BORDER_GAP = 50;
     public const int TEXT_GAP = 100;
     public const float ITEM_SCALE = 0.9f;
 
